@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>crud </title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.2/dist/sweetalert2.min.css">
+    
+    <style>
+        /* Fade-in animation for modals */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Scale-in animation for modal content */
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .animate-scale-in .modal-content-area {
+            animation: scaleIn 0.3s ease-out forwards;
+        }
+
+        /* Fade-in-down animation for main title */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-down {
+            animation: fadeInDown 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center font-sans leading-normal tracking-normal text-gray-800">
+
+    <div class="container mx-auto p-6 max-w-4xl bg-white rounded-2xl shadow-xl border border-gray-200 transform transition-all duration-300">
+        <h1 class="text-5xl md:text-6xl font-extrabold text-center mb-10 text-gray-800 drop-shadow-md animate-fade-in-down">
+            مدیریت هوشمند کارها
+        </h1>
+
+        <div class="flex justify-center mb-10">
+            <button id="openAddModalBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full text-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                <i class="fas fa-plus-circle ml-3"></i> افزودن کار جدید
+            </button>
+        </div>
+
+        <div class="bg-gray-100 p-8 rounded-2xl shadow-lg border border-gray-200">
+            <h2 class="text-3xl font-bold mb-6 text-gray-700 border-b-2 pb-3 border-gray-300">لیست کارهای شما</h2>
+            <div id="todoList" class="space-y-6">
+                </div>
+        </div>
+    </div> 
+
+    <div id="addModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden justify-center items-center p-4 z-50 animate-fade-in">
+        <div class="modal-content-area bg-white p-10 rounded-2xl shadow-2xl w-full max-w-lg relative transform scale-95 opacity-0 transition-all duration-300 ease-out-expo">
+            <div class="flex justify-between items-center mb-6 border-b pb-3 border-gray-200">
+                <h2 class="text-3xl font-bold text-gray-700">افزودن کار جدید</h2>
+                <button id="closeAddModalBtn" class="text-gray-500 hover:text-gray-700 text-4xl leading-none font-light absolute top-4 left-4">&times;</button>
+            </div>
+            <form id="todoForm">
+                <div class="mb-5">
+                    <label for="title" class="block text-gray-700 text-lg font-semibold mb-3">عنوان:</label>
+                    <input type="text" id="title" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-3 focus:ring-blue-400 transition duration-200" placeholder="عنوان کار را وارد کنید" required>
+                </div>
+                <div class="mb-8">
+                    <label for="body" class="block text-gray-700 text-lg font-semibold mb-3">توضیحات:</label>
+                    <textarea id="body" rows="4" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-3 focus:ring-blue-400 transition duration-200" placeholder="توضیحات کار را وارد کنید"></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" id="addTodoBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-3 focus:ring-blue-400">
+                        افزودن کار
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden justify-center items-center p-4 z-50 animate-fade-in">
+        <div class="modal-content-area bg-white p-10 rounded-2xl shadow-2xl w-full max-w-lg relative transform scale-95 opacity-0 transition-all duration-300 ease-out-expo">
+            <div class="flex justify-between items-center mb-6 border-b pb-3 border-gray-200">
+                <h2 class="text-3xl font-bold text-gray-700">ویرایش کار</h2>
+                <button id="closeEditModalBtn" class="text-gray-500 hover:text-gray-700 text-4xl leading-none font-light absolute top-4 left-4">&times;</button>
+            </div>
+            <form id="editTodoForm">
+                <input type="hidden" id="editId">
+                <div class="mb-5">
+                    <label for="editTitle" class="block text-gray-700 text-lg font-semibold mb-3">عنوان:</label>
+                    <input type="text" id="editTitle" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-3 focus:ring-green-400 transition duration-200" required>
+                </div>
+                <div class="mb-8">
+                    <label for="editBody" class="block text-gray-700 text-lg font-semibold mb-3">توضیحات:</label>
+                    <textarea id="editBody" rows="4" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-3 focus:ring-green-400 transition duration-200"></textarea>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="submit" id="saveEditBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-3 focus:ring-green-400">
+                        ذخیره تغییرات
+                    </button>
+                    <button type="button" id="cancelEdit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-3 focus:ring-red-400">
+                        لغو
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.2/dist/sweetalert2.all.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
